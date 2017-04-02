@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AFNetworking
 
 class FlicksViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     @IBOutlet weak var tableView: UITableView!
@@ -67,6 +68,16 @@ class FlicksViewController: UIViewController, UITableViewDataSource, UITableView
         cell.movieLabel.text = flick["title"] as? String
         cell.movieDesc.text = flick["overview"] as? String
         // Configure YourCustomCell using the outlets that you've defined.
+        if let posterPath = flick["poster_path"] as? String {
+            // photos is NOT nil, go ahead and access element 0 and run the code in the curly braces
+            let posterURL = "https://image.tmdb.org/t/p/w500\(posterPath)"
+            
+            let imgURL = URL(string: posterURL)!
+            cell.movieImage.setImageWith(imgURL)
+        }
+        else {  
+            // photos is nil. Good thing we didn't try to unwrap it!
+        }
         
         return cell
     }
