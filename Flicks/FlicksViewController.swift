@@ -75,7 +75,7 @@ class FlicksViewController: UIViewController, UITableViewDataSource, UITableView
             let imgURL = URL(string: posterURL)!
             cell.movieImage.setImageWith(imgURL)
         }
-        else {  
+        else {
             // photos is nil. Good thing we didn't try to unwrap it!
         }
         
