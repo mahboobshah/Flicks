@@ -15,6 +15,9 @@ class FlicksViewController: UIViewController, UITableViewDataSource, UITableView
     override func viewDidLoad() {
         super.viewDidLoad()
         //var indexPath = IndexPath.self
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: .valueChanged)
+        tableView.insertSubview(refreshControl, at: 0)
         tableView.dataSource = self
         tableView.delegate = self
         tableView.rowHeight = 120;
@@ -91,5 +94,41 @@ class FlicksViewController: UIViewController, UITableViewDataSource, UITableView
     }
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated:true)
+    }
+    
+    func refreshControlAction(_ refreshControl: UIRefreshControl) {
+        
+        let url = URL(string:"http://api.themoviedb.org/3/movie/now_playing?api_key=54ae998e120ee63468a253d30a1c4261")
+        let request = URLRequest(url: url!)
+        let session = URLSession(
+            configuration: URLSessionConfiguration.default,
+            delegate:nil,
+            delegateQueue:OperationQueue.main
+        )
+        let task : URLSessionDataTask = session.dataTask(
+            with: request as URLRequest,
+            completionHandler: { (data, response, error) in
+                if let data = data {
+                    if let responseDictionary = try! JSONSerialization.jsonObject(
+                        with: data, options:[]) as? NSDictionary {
+                        //print("responseDictionary: \(responseDictionary)")
+                        
+                        // Recall there are two fields in the response dictionary, 'meta' and 'response'.
+                        // This is how we get the 'response' field
+                        //                        let responseFieldDictionary = responseDictionary["results"] as! NSDictionary
+                        //                        print("responseFieldDictionary: \(responseFieldDictionary)")
+                        // This is where you will store the returned array of posts in your posts property
+                        self.results = responseDictionary["results"] as! [NSDictionary]
+                        //print(self.results)
+                        //print(self.results.count)
+                        self.tableView.reloadData()
+                    }
+                }
+        })
+            
+            // Tell the refreshControl to stop spinning
+            refreshControl.endRefreshing()
+        
+        task.resume()
     }
 }
