@@ -55,6 +55,14 @@ class FlicksViewController: UIViewController, UITableViewDataSource, UITableView
         // Dispose of any resources that can be recreated.
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let destinationViewController = segue.destination as?FlickDetailViewController
+        var indexPath: IndexPath?
+        indexPath = tableView.indexPath(for: sender as! UITableViewCell)!
+        
+        destinationViewController?.flick = results[(indexPath?.row)!]
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         //print(results.count)
         return results.count
@@ -80,5 +88,8 @@ class FlicksViewController: UIViewController, UITableViewDataSource, UITableView
         }
         
         return cell
+    }
+    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated:true)
     }
 }
