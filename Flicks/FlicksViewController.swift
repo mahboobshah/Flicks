@@ -12,7 +12,9 @@ import MBProgressHUD
 
 class FlicksViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var networkErrorView: UIView!
     var results: [NSDictionary] = []
+    var connection: Bool = true
     override func viewDidLoad() {
         super.viewDidLoad()
         //var indexPath = IndexPath.self
@@ -34,28 +36,41 @@ class FlicksViewController: UIViewController, UITableViewDataSource, UITableView
         let task : URLSessionDataTask = session.dataTask(
             with: request as URLRequest,
             completionHandler: { (data, response, error) in
-                if let data = data {
-                    if let responseDictionary = try! JSONSerialization.jsonObject(
-                        with: data, options:[]) as? NSDictionary {
-                        //print("responseDictionary: \(responseDictionary)")
-                        
-                        // Recall there are two fields in the response dictionary, 'meta' and 'response'.
-                        // This is how we get the 'response' field
-//                        let responseFieldDictionary = responseDictionary["results"] as! NSDictionary
-//                        print("responseFieldDictionary: \(responseFieldDictionary)")
-                        // This is where you will store the returned array of posts in your posts property
-                        self.results = responseDictionary["results"] as! [NSDictionary]
-                        //print(self.results)
-                        //print(self.results.count)
-                        MBProgressHUD.hide(for: self.tableView, animated: true)
-                        self.tableView.reloadData()
+                if (error != nil) {
+                    self.networkErrorView.isHidden = false
+                    self.connection = false
+                    MBProgressHUD.hide(for: self.tableView, animated: true)
+                } else {
+                    if let data = data {
+                        if let responseDictionary = try! JSONSerialization.jsonObject(
+                            with: data, options:[]) as? NSDictionary {
+                            //print("responseDictionary: \(responseDictionary)")
+                            
+                            // Recall there are two fields in the response dictionary, 'meta' and 'response'.
+                            // This is how we get the 'response' field
+                            //                        let responseFieldDictionary = responseDictionary["results"] as! NSDictionary
+                            //                        print("responseFieldDictionary: \(responseFieldDictionary)")
+                            // This is where you will store the returned array of posts in your posts property
+                            self.results = responseDictionary["results"] as! [NSDictionary]
+                            //print(self.results)
+                            //print(self.results.count)
+                            MBProgressHUD.hide(for: self.tableView, animated: true)
+                            self.tableView.reloadData()
+                        }
                     }
                 }
         })
         task.resume()
         // Do any additional setup after loading the view.
     }
-
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if(connection) {
+            networkErrorView.isHidden = true
+        }
+        //networkErrorView
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -111,27 +126,35 @@ class FlicksViewController: UIViewController, UITableViewDataSource, UITableView
         let task : URLSessionDataTask = session.dataTask(
             with: request as URLRequest,
             completionHandler: { (data, response, error) in
-                if let data = data {
-                    if let responseDictionary = try! JSONSerialization.jsonObject(
-                        with: data, options:[]) as? NSDictionary {
-                        //print("responseDictionary: \(responseDictionary)")
-                        
-                        // Recall there are two fields in the response dictionary, 'meta' and 'response'.
-                        // This is how we get the 'response' field
-                        //                        let responseFieldDictionary = responseDictionary["results"] as! NSDictionary
-                        //                        print("responseFieldDictionary: \(responseFieldDictionary)")
-                        // This is where you will store the returned array of posts in your posts property
-                        self.results = responseDictionary["results"] as! [NSDictionary]
-                        //print(self.results)
-                        //print(self.results.count)
-                        MBProgressHUD.hide(for: self.tableView, animated: true)
-                        self.tableView.reloadData()
+                if (error != nil) {
+                    self.networkErrorView.isHidden = false
+                    self.connection = false
+                    MBProgressHUD.hide(for: self.tableView, animated: true)
+                } else {
+                    if let data = data {
+                        if let responseDictionary = try! JSONSerialization.jsonObject(
+                            with: data, options:[]) as? NSDictionary {
+                            //print("responseDictionary: \(responseDictionary)")
+                            
+                            // Recall there are two fields in the response dictionary, 'meta' and 'response'.
+                            // This is how we get the 'response' field
+                            //                        let responseFieldDictionary = responseDictionary["results"] as! NSDictionary
+                            //                        print("responseFieldDictionary: \(responseFieldDictionary)")
+                            // This is where you will store the returned array of posts in your posts property
+                            self.results = responseDictionary["results"] as! [NSDictionary]
+                            //print(self.results)
+                            //print(self.results.count)
+                            MBProgressHUD.hide(for: self.tableView, animated: true)
+                            self.connection = true
+                            self.networkErrorView.isHidden = true
+                            self.tableView.reloadData()
+                        }
                     }
                 }
         })
-            
-            // Tell the refreshControl to stop spinning
-            refreshControl.endRefreshing()
+        
+        // Tell the refreshControl to stop spinning
+        refreshControl.endRefreshing()
         
         task.resume()
     }
