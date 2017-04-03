@@ -8,6 +8,7 @@
 
 import UIKit
 import AFNetworking
+import MBProgressHUD
 
 class FlicksViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     @IBOutlet weak var tableView: UITableView!
@@ -15,6 +16,7 @@ class FlicksViewController: UIViewController, UITableViewDataSource, UITableView
     override func viewDidLoad() {
         super.viewDidLoad()
         //var indexPath = IndexPath.self
+        MBProgressHUD.showAdded(to: tableView, animated: true)
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: .valueChanged)
         tableView.insertSubview(refreshControl, at: 0)
@@ -45,6 +47,7 @@ class FlicksViewController: UIViewController, UITableViewDataSource, UITableView
                         self.results = responseDictionary["results"] as! [NSDictionary]
                         //print(self.results)
                         //print(self.results.count)
+                        MBProgressHUD.hide(for: self.tableView, animated: true)
                         self.tableView.reloadData()
                     }
                 }
@@ -97,7 +100,7 @@ class FlicksViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func refreshControlAction(_ refreshControl: UIRefreshControl) {
-        
+        MBProgressHUD.showAdded(to: tableView, animated: true)
         let url = URL(string:"http://api.themoviedb.org/3/movie/now_playing?api_key=54ae998e120ee63468a253d30a1c4261")
         let request = URLRequest(url: url!)
         let session = URLSession(
@@ -121,6 +124,7 @@ class FlicksViewController: UIViewController, UITableViewDataSource, UITableView
                         self.results = responseDictionary["results"] as! [NSDictionary]
                         //print(self.results)
                         //print(self.results.count)
+                        MBProgressHUD.hide(for: self.tableView, animated: true)
                         self.tableView.reloadData()
                     }
                 }
